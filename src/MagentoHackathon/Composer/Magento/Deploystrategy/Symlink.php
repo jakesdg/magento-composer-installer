@@ -11,6 +11,36 @@ namespace MagentoHackathon\Composer\Magento\Deploystrategy;
 class Symlink extends DeploystrategyAbstract
 {
     /**
+     * Removes symbolic links pointing to source
+     *
+     * @param string $source
+     * @param string $dest
+     * @return bool
+     * @throws \ErrorException
+     */
+    public function removeDelegate($source, $dest)
+    {
+        $sourcePath = $this->getSourceDir() . '/' . $this->removeTrailingSlash($source);
+        $destPath = $this->getDestDir() . '/' . $this->removeTrailingSlash($dest);
+
+        if (is_link($destPath)) {
+            if (realpath($destPath) === realpath($sourcePath)) {
+                if(!unlink($destPath)) {
+                    throw new \ErrorException("$destPath could not be removed");
+                } else {
+                    return true;
+                }
+            } else {
+                throw new \ErrorException("$destPath does not point to $sourcePath, will not remove link");
+            }
+        } else if (file_exists(realpath($destPath))) {
+            throw new \ErrorException("$destPath exists and is not a symbolic link");
+        }
+
+        return true;
+    }
+
+    /**
      * Creates a symlink with lots of error-checking
      *
      * @param string $source

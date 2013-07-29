@@ -11,6 +11,21 @@ namespace MagentoHackathon\Composer\Magento\Deploystrategy;
 class Link extends DeploystrategyAbstract
 {
     /**
+     * Remove hard links
+     *
+     * @todo implement
+     *
+     * @param string $source
+     * @param string $dest
+     * @return bool
+     * @throws \ErrorException
+     */
+    public function removeDelegate($source, $dest)
+    {
+        return true;
+    }
+
+    /**
      * Creates a hardlink with lots of error-checking
      *
      * @param string $source

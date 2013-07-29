@@ -11,6 +11,20 @@ namespace MagentoHackathon\Composer\Magento\Deploystrategy;
 class Copy extends DeploystrategyAbstract
 {
     /**
+     * Remove files
+     *
+     * @todo implement
+     *
+     * @param string $source
+     * @param string $dest
+     * @return bool|void
+     */
+    public function removeDelegate($source, $dest)
+    {
+        return true;
+    }
+
+    /**
      * copy files
      *
      * @param string $source

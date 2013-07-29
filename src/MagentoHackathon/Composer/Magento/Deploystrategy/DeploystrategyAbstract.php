@@ -223,6 +223,8 @@ abstract class DeploystrategyAbstract
      */
     public function remove($source, $dest)
     {
+        $this->removeDelegate($source, $dest);
+
         $sourcePath = $this->getSourceDir() . '/' . $this->removeTrailingSlash($source);
         $destPath = $this->getDestDir() . '/' . $dest;
 
@@ -254,25 +256,15 @@ abstract class DeploystrategyAbstract
      */
     public function rmEmptyDirsRecursive($dir, $stopDir = null)
     {
-        $absoluteDir = $this->getDestDir() . '/' . $dir;
-        if (is_dir($absoluteDir)) {
-            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($absoluteDir),
-                    \RecursiveIteratorIterator::CHILD_FIRST);
+        $absoluteDir = realpath($this->getDestDir() . '/' . $dir);
 
-            foreach ($iterator as $item) {
-                $path = (string) $item;
-                if (!strcmp($path, '.') || !strcmp($path, '..')) {
-                    continue;
-                }
-                // The directory contains something, do not remove
-                return;
-            }
+        if (is_dir($absoluteDir) && (count(scandir($absoluteDir)) == 2)) {
             // The specified directory is empty
             if (@rmdir($absoluteDir)) {
                 // If the parent directory doesn't match the $stopDir and it's empty, remove it, too
                 $parentDir = dirname($dir);
                 $absoluteParentDir = $this->getDestDir() . '/' . $parentDir;
-                if (! isset($stopDir) || (realpath($stopDir) !== realpath($absoluteParentDir))) {
+                if (!isset($stopDir) || (realpath($stopDir) !== realpath($absoluteParentDir))) {
                     // Remove the parent directory if it is empty
                     $this->rmEmptyDirsRecursive($parentDir);
                 }
@@ -328,5 +320,16 @@ abstract class DeploystrategyAbstract
      * @return bool
      */
     abstract protected function createDelegate($source, $dest);
+
+    /**
+     * Remove the module's files in the given destination.
+     *
+     * NOTE: source and dest have to be passed as relative directories, like they are listed in the mapping
+     *
+     * @param string $source
+     * @param string $dest
+     * @return bool
+     */
+    abstract protected function removeDelegate($source, $dest);
 
 }
